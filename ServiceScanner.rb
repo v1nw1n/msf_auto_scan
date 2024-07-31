@@ -20,7 +20,7 @@ class ServiceScanner
     3389 => 'rdp'
     5432 => 'postgresql',
     6379 => 'redis',
-    27017 = 'mongodb'
+    27017 => 'mongodb'
   }
 
   SERVICENAME_MAP = {
