@@ -1,4 +1,5 @@
 # msf_auto_scan
+根据识别的服务加载预设的MSF模块执行主机服务的漏洞扫描。
 
 ## start msf rpc service  
 ```bash
