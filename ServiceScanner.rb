@@ -17,7 +17,7 @@ class ServiceScanner
     139 => 'netbios',
     389 => 'ldap',
     445 => 'smb',
-    3389 => 'rdp'
+    3389 => 'rdp',
     5432 => 'postgresql',
     6379 => 'redis',
     27017 => 'mongodb'
@@ -37,7 +37,7 @@ class ServiceScanner
       'auxiliary/scanner/rdp/cve_2019_0708_bluekeep'
     ],
     'nfs' => ['auxiliary/scanner/nfs/nfsmount'],
-    'mongodb' => ['auxiliary/scanner/mongodb/mongodb_login']
+    'mongodb' => ['auxiliary/scanner/mongodb/mongodb_login'],
     'redis' => ['auxiliary/scanner/redis/redis_server',
                 'exploit/linux/redis/redis_replication_cmd_exec', 
                 'auxiliary/scanner/redis/redis_login',
