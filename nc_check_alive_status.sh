@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # target
 input_file="target.txt"
@@ -10,7 +10,7 @@ if [[ ! -f "$input_file" ]]; then
   echo "文件 $input_file 不存在"
   exit 1
 fi
-
+echo > ips_and_ports.txt
 echo "start..."
 while IFS=$' \t' read -r ip port; do
   echo "[debug]readline: '$ip' '$port'"
