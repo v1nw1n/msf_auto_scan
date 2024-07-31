@@ -6,13 +6,25 @@ require 'parallel'
 require 'concurrent-ruby'
 
 class ServiceScanner
-  SERVICE_MAP = {
+  PORT_MAP = {
     21 => 'ftp',
     22 => 'ssh',
     23 => 'telnet',
     25 => 'smtp',
+    111 => 'nfs',
+    137 => 'netbios',
+    138 => 'netbios',
+    139 => 'netbios',
+    389 => 'ldap',
     445 => 'smb',
     3389 => 'rdp'
+    5432 => 'postgresql',
+    6379 => 'redis',
+    27017 = 'mongodb'
+  }
+
+  SERVICENAME_MAP = {
+    'Microsoft-DS' => 'smb'
   }
 
   MODULE_MAP = {
@@ -36,9 +48,7 @@ class ServiceScanner
     'netbios' => ['auxiliary/scanner/netbios/nbname']
   }
 
-  SERVICENAME_MAP = {
-    'Microsoft-DS' => 'smb'
-  }
+  
 
   def initialize(file_path, log_file = 'scan_results.log')
     @file_path = file_path
@@ -77,13 +87,15 @@ class ServiceScanner
     if MODULE_MAP.key?(target[:service])
       return target[:service]
     end
-
+    service_from_servicename = SERVICENAME_MAP[target[:service]]
+    if MODULE_MAP.key?(service_from_servicename)
+      return service_from_servicename
+    end 
     #检查port字段
-    service_from_port = SERVICE_MAP[target[:port]]
+    service_from_port = PORT_MAP[target[:port]]
     if MODULE_MAP.key?(service_from_port)
       return service_from_port
     end
-
     # 服务识别失败
     nil
   end
