@@ -11,23 +11,33 @@ class ServiceScanner
     22 => 'ssh',
     23 => 'telnet',
     25 => 'smtp',
-    80 => 'http',
-    443 => 'https',
     445 => 'smb',
     3389 => 'rdp'
   }
 
   MODULE_MAP = {
-    'ftp' => ['auxiliary/scanner/ftp/ftp_version'],
-    'ssh' => ['auxiliary/scanner/ssh/ssh_version'],
-    'telnet' => ['auxiliary/scanner/telnet/telnet_version'],
-    'smtp' => ['auxiliary/scanner/smtp/smtp_version'],
-    'http' => ['auxiliary/scanner/http/http_version'],
-    'https' => ['auxiliary/scanner/http/http_version'],
+    'ftp' => ['auxiliary/scanner/ftp/anonymous'],
+    'ldap' => ['auxiliary/scanner/ldap/ldap_login'],
+    'telnet' => ['auxiliary/scanner/telnet/telnet_login'],
+    'smtp' => ['auxiliary/scanner/smtp/smtp_relay'],
     'smb' => ['auxiliary/scanner/smb/smb_version'],
     'rdp' => [
       'auxiliary/scanner/rdp/cve_2019_0708_bluekeep'
-    ]
+    ],
+    'nfs' => ['auxiliary/scanner/nfs/nfsmount'],
+    'mongodb' => ['auxiliary/scanner/mongodb/mongodb_login']
+    'redis' => ['auxiliary/scanner/redis/redis_server',
+                'exploit/linux/redis/redis_replication_cmd_exec', 
+                'auxiliary/scanner/redis/redis_login',
+                'auxiliary/scanner/redis/file_upload', 
+                'exploit/linux/redis/redis_debian_sandbox_escape'],
+    'postgresql' => ['multi/postgres/postgres_copy_from_program_cmd_exec'],
+    'smb' => ['auxiliary/scanner/smb/smb_ms17_010'],
+    'netbios' => ['auxiliary/scanner/netbios/nbname']
+  }
+
+  SERVICENAME_MAP = {
+    'Microsoft-DS' => 'smb'
   }
 
   def initialize(file_path, log_file = 'scan_results.log')
