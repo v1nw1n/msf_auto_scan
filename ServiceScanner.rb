@@ -123,7 +123,7 @@ class ServiceScanner
           'RPORT' => port,
           'ANONYMOUS_LOGIN' => options['ANONYMOUS_LOGIN'] ? true : nil
         }.compact)
-        log("模块 #{module_name} 执行成功: IP=#{ip}, Port=#{port}, 结果: #{result}")
+        log("模块 #{module_name} 执行成功: IP: #{ip}, Port: #{port}, RPC调用: #{result}")
 
         job_id = result['job_id']
         uuid = result['uuid']
@@ -145,7 +145,7 @@ class ServiceScanner
 
     log("作业 #{job_id} 完成，获取结果...")
     result = Thread.current[:rpc_client].call('module.results', uuid)
-    log("模块 #{module_name} 的结果: IP=#{ip}, Port=#{port}, 结果: #{result}")
+    log("[EXERES] IP: #{ip}, Port: #{port}, 结果: #{result} , 模块 :#{module_name}")
   end
 
   def log(message)
