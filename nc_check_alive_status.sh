@@ -23,7 +23,7 @@ while IFS=$' \t' read -r ip port; do
     echo "[debug]nc output: $output"
     # check alive
     if echo "$output" | grep -q "succeeded"; then
-      service=$(echo "$output" | sed -n 's/.*\[\(.*\)\].*/\1/p')
+      service=$(echo "$output" | sed -n 's/.*\[\(.*\/\)\(.*\)\].*/\2/p')
       echo "$ip:$port:$service" >> "$result_file"
     else
       echo "[debug]----connect fail----: $ip $port"
