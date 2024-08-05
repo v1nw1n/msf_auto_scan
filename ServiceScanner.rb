@@ -21,7 +21,7 @@ class ServiceScanner
     5432 => 'postgresql',
     6379 => 'redis',
     27017 => 'mongodb',
-    873 = > 'rsync'
+    873 => 'rsync'
   }
 
   SERVICENAME_MAP = {
@@ -57,7 +57,7 @@ class ServiceScanner
   def initialize(file_path, log_file = 'scan_results.log')
     @file_path = file_path
     @log_file = log_file
-     @rpc_client = Msf::RPC::Client.new(host: '127.0.0.1', port: 55553)
+    @rpc_client = Msf::RPC::Client.new(host: '127.0.0.1', port: 55553)
     @rpc_client.login('*', '*')
     @mutex = Mutex.new
     @pool = Concurrent::FixedThreadPool.new(10) # 动态调整线程数，根据实际情况调节
