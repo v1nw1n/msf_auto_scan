@@ -25,9 +25,10 @@ class ServiceScanner
   }
 
   SERVICENAME_MAP = {
-    'Microsoft-DS' => 'smb',
+    'microsoft-DS' => 'smb',
     'netbios-ssn' => 'netbios',
-    'sunrpc' => 'nfs'
+    'sunrpc' => 'nfs',
+    'ms-wbt-server' => 'rdp'
   }
 
   MODULE_MAP = {
