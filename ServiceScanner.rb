@@ -17,11 +17,11 @@ class ServiceScanner
     139 => 'netbios',
     389 => 'ldap',
     445 => 'smb',
+    873 => 'rsync',
     3389 => 'rdp',
     5432 => 'postgresql',
     6379 => 'redis',
-    27017 => 'mongodb',
-    873 => 'rsync'
+    27017 => 'mongodb'    
   }
 
   SERVICENAME_MAP = {
@@ -52,15 +52,11 @@ class ServiceScanner
     'rsync' => ['auxiliary/scanner/rsync/modules_list']
   }
 
-  
-
   def initialize(file_path, log_file = 'scan_results.log')
     @file_path = file_path
     @log_file = log_file
-    @rpc_client = Msf::RPC::Client.new(host: '127.0.0.1', port: 55553)
-    @rpc_client.login('*', '*')
     @mutex = Mutex.new
-    @pool = Concurrent::FixedThreadPool.new(10) # 动态调整线程数，根据实际情况调节
+    @pool = Concurrent::FixedThreadPool.new(5) # 限制并发线程数
   end
 
   def run
@@ -71,11 +67,19 @@ class ServiceScanner
 
     targets.each do |target|
       @pool.post do
-        service = identify_service(target)
-        if service
-          run_modules(service, target[:ip], target[:port])
-        else
-          log("未知服务: IP=#{target[:ip]}, Port=#{target[:port]}, Service=#{target[:service]}")
+        begin
+          Thread.current[:rpc_client] = Msf::RPC::Client.new(host: '127.0.0.1', port: 55553)
+          Thread.current[:rpc_client].login('*', '*')
+          service = identify_service(target)
+          if service
+            run_modules(service, target[:ip], target[:port])
+          else
+            log("未知服务: IP=#{target[:ip]}, Port=#{target[:port]}, Service=#{target[:service]}")
+          end
+        rescue => e
+          log("处理目标 #{target[:ip]}:#{target[:port]} 时出错: #{e.message}")
+        ensure
+          Thread.current[:rpc_client] = nil
         end
       end
     end
@@ -110,19 +114,15 @@ class ServiceScanner
 
     module_names.each do |module_name|
       begin
-        options = @rpc_client.call('module.options', 'auxiliary', module_name)
+        options = Thread.current[:rpc_client].call('module.options', 'auxiliary', module_name)
         if options['ANONYMOUS_LOGIN']
           options['ANONYMOUS_LOGIN']['default'] = true
         end
-        result = @rpc_client.call('module.execute', 'auxiliary', module_name, {
+        result = Thread.current[:rpc_client].call('module.execute', 'auxiliary', module_name, {
           'RHOSTS' => ip,
           'RPORT' => port,
           'ANONYMOUS_LOGIN' => options['ANONYMOUS_LOGIN'] ? true : nil
         }.compact)
-        # result = @rpc_client.call('module.execute', 'auxiliary', module_name, {
-        #   'RHOSTS' => ip,
-        #   'RPORT' => port
-        # })
         log("模块 #{module_name} 执行成功: IP=#{ip}, Port=#{port}, 结果: #{result}")
 
         job_id = result['job_id']
@@ -136,15 +136,15 @@ class ServiceScanner
   end
 
   def monitor_job(job_id, uuid, module_name, ip, port)
-    job_status = @rpc_client.call('job.list')[job_id.to_s]
+    job_status = Thread.current[:rpc_client].call('job.list')[job_id.to_s]
 
     while job_status
-      sleep(5) 
-      job_status = @rpc_client.call('job.list')[job_id.to_s]
+      sleep(5)
+      job_status = Thread.current[:rpc_client].call('job.list')[job_id.to_s]
     end
 
     log("作业 #{job_id} 完成，获取结果...")
-    result = @rpc_client.call('module.results', uuid)
+    result = Thread.current[:rpc_client].call('module.results', uuid)
     log("模块 #{module_name} 的结果: IP=#{ip}, Port=#{port}, 结果: #{result}")
   end
 
@@ -158,7 +158,7 @@ class ServiceScanner
   end
 end
 
-
 file_path = 'ips_and_ports.txt'
 scanner = ServiceScanner.new(file_path)
 scanner.run
+
