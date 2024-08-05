@@ -20,11 +20,14 @@ class ServiceScanner
     3389 => 'rdp',
     5432 => 'postgresql',
     6379 => 'redis',
-    27017 => 'mongodb'
+    27017 => 'mongodb',
+    873 = > 'rsync'
   }
 
   SERVICENAME_MAP = {
-    'Microsoft-DS' => 'smb'
+    'Microsoft-DS' => 'smb',
+    'netbios-ssn' => 'netbios',
+    'sunrpc' => 'nfs'
   }
 
   MODULE_MAP = {
@@ -32,7 +35,6 @@ class ServiceScanner
     'ldap' => ['auxiliary/scanner/ldap/ldap_login'],
     'telnet' => ['auxiliary/scanner/telnet/telnet_login'],
     'smtp' => ['auxiliary/scanner/smtp/smtp_relay'],
-    'smb' => ['auxiliary/scanner/smb/smb_version'],
     'rdp' => [
       'auxiliary/scanner/rdp/cve_2019_0708_bluekeep'
     ],
@@ -45,7 +47,8 @@ class ServiceScanner
                 'exploit/linux/redis/redis_debian_sandbox_escape'],
     'postgresql' => ['multi/postgres/postgres_copy_from_program_cmd_exec'],
     'smb' => ['auxiliary/scanner/smb/smb_ms17_010'],
-    'netbios' => ['auxiliary/scanner/netbios/nbname']
+    'netbios' => ['auxiliary/scanner/netbios/nbname'],
+    'rsync' => ['auxiliary/scanner/rsync/modules_list']
   }
 
   
@@ -106,10 +109,19 @@ class ServiceScanner
 
     module_names.each do |module_name|
       begin
+        options = @rpc_client.call('module.options', 'auxiliary', module_name)
+        if options['ANONYMOUS_LOGIN']
+          options['ANONYMOUS_LOGIN']['default'] = true
+        end
         result = @rpc_client.call('module.execute', 'auxiliary', module_name, {
           'RHOSTS' => ip,
-          'RPORT' => port
-        })
+          'RPORT' => port,
+          'ANONYMOUS_LOGIN' => options['ANONYMOUS_LOGIN'] ? true : nil
+        }.compact)
+        # result = @rpc_client.call('module.execute', 'auxiliary', module_name, {
+        #   'RHOSTS' => ip,
+        #   'RPORT' => port
+        # })
         log("模块 #{module_name} 执行成功: IP=#{ip}, Port=#{port}, 结果: #{result}")
 
         job_id = result['job_id']
