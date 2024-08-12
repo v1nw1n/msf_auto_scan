@@ -41,8 +41,7 @@ class ServiceScanner
     ],
     'nfs' => ['auxiliary/scanner/nfs/nfsmount'],
     'mongodb' => ['auxiliary/scanner/mongodb/mongodb_login'],
-    'redis' => ['auxiliary/scanner/redis/redis_server',
-                'exploit/linux/redis/redis_replication_cmd_exec', 
+    'redis' => ['exploit/linux/redis/redis_replication_cmd_exec', 
                 'auxiliary/scanner/redis/redis_login',
                 'auxiliary/scanner/redis/file_upload', 
                 'exploit/linux/redis/redis_debian_sandbox_escape'],
@@ -121,11 +120,15 @@ class ServiceScanner
         if options['LHOST']
           options['ANONYMOUS_LOGIN']['default'] = '0.0.0.0'
         end
+        if options['BLANK_PASSWORDS']
+          options['BLANK_PASSWORDS']['default'] = 'yes'
+        end
         result = Thread.current[:rpc_client].call('module.execute', 'auxiliary', module_name, {
           'RHOSTS' => ip,
           'RPORT' => port,
           'ANONYMOUS_LOGIN' => options['ANONYMOUS_LOGIN'] ? true : nil,
-          'LHOST' => options['LHOST'] ? '0.0.0.0' : nil
+          'LHOST' => options['LHOST'] ? '0.0.0.0' : nil,
+          'BLANK_PASSWORDS' => options['BLANK_PASSWORDS'] ? 'yes' : nil
         }.compact)
         log("模块 #{module_name} 执行成功: IP: #{ip}, Port: #{port}, RPC调用: #{result}")
 
