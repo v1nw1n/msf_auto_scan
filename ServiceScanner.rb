@@ -118,10 +118,14 @@ class ServiceScanner
         if options['ANONYMOUS_LOGIN']
           options['ANONYMOUS_LOGIN']['default'] = true
         end
+        if options['LHOST']
+          options['ANONYMOUS_LOGIN']['default'] = '0.0.0.0'
+        end
         result = Thread.current[:rpc_client].call('module.execute', 'auxiliary', module_name, {
           'RHOSTS' => ip,
           'RPORT' => port,
-          'ANONYMOUS_LOGIN' => options['ANONYMOUS_LOGIN'] ? true : nil
+          'ANONYMOUS_LOGIN' => options['ANONYMOUS_LOGIN'] ? true : nil,
+          'LHOST' => options['LHOST'] ? '0.0.0.0' : nil
         }.compact)
         log("模块 #{module_name} 执行成功: IP: #{ip}, Port: #{port}, RPC调用: #{result}")
 
