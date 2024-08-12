@@ -46,7 +46,7 @@ class ServiceScanner
                 'auxiliary/scanner/redis/redis_login',
                 'auxiliary/scanner/redis/file_upload', 
                 'exploit/linux/redis/redis_debian_sandbox_escape'],
-    'postgresql' => ['multi/postgres/postgres_copy_from_program_cmd_exec'],
+    'postgresql' => ['exploit/multi/postgres/postgres_copy_from_program_cmd_exec'],
     'smb' => ['auxiliary/scanner/smb/smb_ms17_010'],
     'netbios' => ['auxiliary/scanner/netbios/nbname'],
     'rsync' => ['auxiliary/scanner/rsync/modules_list']
