@@ -113,7 +113,7 @@ class ServiceScanner
 
     module_names.each do |module_name|
       begin
-        module_type = Thread.current[:rpc_client].call('module.type', module_name)
+        module_type = module_name.split('/').first
         options = Thread.current[:rpc_client].call('module.options', module_type , module_name)
         options['ANONYMOUS_LOGIN']['default'] = true if options['ANONYMOUS_LOGIN']
         options['LHOST']['default'] = '0.0.0.0' if options['LHOST']
