@@ -113,17 +113,12 @@ class ServiceScanner
 
     module_names.each do |module_name|
       begin
-        options = Thread.current[:rpc_client].call('module.options', 'auxiliary', module_name)
-        if options['ANONYMOUS_LOGIN']
-          options['ANONYMOUS_LOGIN']['default'] = true
-        end
-        if options['LHOST']
-          options['ANONYMOUS_LOGIN']['default'] = '0.0.0.0'
-        end
-        if options['BLANK_PASSWORDS']
-          options['BLANK_PASSWORDS']['default'] = 'yes'
-        end
-        result = Thread.current[:rpc_client].call('module.execute', 'auxiliary', module_name, {
+        module_type = Thread.current[:rpc_client].call('module.type', module_name)
+        options = Thread.current[:rpc_client].call('module.options', module_type , module_name)
+        options['ANONYMOUS_LOGIN']['default'] = true if options['ANONYMOUS_LOGIN']
+        options['LHOST']['default'] = '0.0.0.0' if options['LHOST']
+        options['BLANK_PASSWORDS']['default'] = 'yes' if options['BLANK_PASSWORDS']
+        result = Thread.current[:rpc_client].call('module.execute', module_type , module_name, {
           'RHOSTS' => ip,
           'RPORT' => port,
           'ANONYMOUS_LOGIN' => options['ANONYMOUS_LOGIN'] ? true : nil,
